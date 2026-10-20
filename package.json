@@ -1,0 +1,20 @@
+{
+  "name": "alquiler-vajillas",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^5.0.0",
+    "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3"
+  },
+  "devDependencies": {
+    "@types/bootstrap": "^5.2.10",
+    "typescript": "^5.6.0"
+  }
+}

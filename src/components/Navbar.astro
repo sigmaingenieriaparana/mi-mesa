@@ -1,0 +1,82 @@
+---
+import { site, whatsappUrl } from '../config/site';
+---
+
+<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
+  <div class="container">
+    <!-- Logo en el navbar-brand -->
+    <a class="navbar-brand d-flex align-items-center gap-2 text-brand fw-bold" href="#inicio">
+      <img 
+  src="/galeria/logo-centrado.jpg" 
+  alt={site.nombre} 
+  width="110"
+  height="110"
+  class="d-inline-block align-text-top"
+  
+  style="border-radius: 50%; object-fit: cover;"
+/>
+      <span>{site.nombre}</span>
+    </a>
+
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#menu"
+      aria-controls="menu"
+      aria-expanded="false"
+      aria-label="Abrir menú"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+        <li class="nav-item"><a class="nav-link" href="#servicios">Qué alquilamos</a></li>
+        <li class="nav-item"><a class="nav-link" href="#como-funciona">Cómo funciona</a></li>
+        <li class="nav-item"><a class="nav-link" href="#galeria">Galería</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
+        <li class="nav-item ms-lg-2">
+          <a class="btn btn-whatsapp btn-sm" href={whatsappUrl} target="_blank" rel="noopener">
+            <i class="bi bi-whatsapp me-1"></i> WhatsApp
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+
+<!-- ---
+import { site, whatsappUrl } from '../config/site';
+---
+
+<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
+  <div class="container">
+    <a class="navbar-brand text-brand fw-bold" href="#inicio">{site.nombre}</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#menu"
+      aria-controls="menu"
+      aria-expanded="false"
+      aria-label="Abrir menú"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+        <li class="nav-item"><a class="nav-link" href="#servicios">Qué alquilamos</a></li>
+        <li class="nav-item"><a class="nav-link" href="#como-funciona">Cómo funciona</a></li>
+        <li class="nav-item"><a class="nav-link" href="#galeria">Galería</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
+        <li class="nav-item ms-lg-2">
+          <a class="btn btn-whatsapp btn-sm" href={whatsappUrl} target="_blank" rel="noopener">
+            <i class="bi bi-whatsapp me-1"></i> WhatsApp
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav> -->

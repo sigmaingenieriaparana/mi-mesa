@@ -1,0 +1,143 @@
+---
+import { servicios, pasos } from '../config/site';
+
+const serviciosData = servicios.map((s) => ({ titulo: s.titulo, fotos: s.fotos }));
+---
+
+<section id="servicios" class="py-5">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">¿Qué ofrecemos?</h2>
+      <p class="text-secondary">Hacé clic en cada categoría para ver las fotos.</p>
+    </div>
+    <div class="row g-4">
+      {
+        servicios.map((s, i) => (
+          <div class="col-12 col-sm-6 col-lg-3">
+            <button
+              type="button"
+              class="card service-card service-card-btn h-100 w-100 text-center p-3 bg-white"
+              data-servicio-index={i}
+              data-bs-toggle="modal"
+              data-bs-target="#servicioModal"
+              aria-label={`Ver fotos de ${s.titulo}`}
+            >
+              <div class="card-body">
+                <span class="service-icon mb-3">
+                  <i class={`bi ${s.icono}`} />
+                </span>
+                <h3 class="h5">{s.titulo}</h3>
+                <p class="text-secondary">{s.descripcion}</p>
+                <span class="text-brand small fw-semibold">
+                  <i class="bi bi-images me-1" />Ver fotos
+                </span>
+              </div>
+            </button>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  <!-- Modal con galería de la categoría -->
+  <div class="modal fade" id="servicioModal" tabindex="-1" aria-labelledby="servicioModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content bg-dark text-white border-0">
+        <div class="modal-header border-0">
+          <h2 class="modal-title h5" id="servicioModalTitle"></h2>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div id="servicioCarousel" class="carousel slide" data-bs-interval="false" data-bs-ride="false">
+            <div class="carousel-inner" id="servicioCarouselInner"></div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#servicioCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#servicioCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Siguiente</span>
+            </button>
+          </div>
+          <p class="text-center small text-white-50 my-2" id="servicioCaption"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" id="servicios-data" is:inline set:html={JSON.stringify(serviciosData)} />
+</section>
+
+<section id="como-funciona" class="py-5 bg-brand-soft">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">Cómo funciona</h2>
+    </div>
+    <div class="row g-4 text-center">
+      {
+        pasos.map((p) => (
+          <div class="col-md-4">
+            <span class="step-number mb-3">{p.n}</span>
+            <h3 class="h5">{p.titulo}</h3>
+            <p class="text-secondary mb-0">{p.texto}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  import { Carousel } from 'bootstrap';
+
+  interface Foto {
+    src: string;
+    alt: string;
+  }
+  interface ServicioData {
+    titulo: string;
+    fotos: Foto[];
+  }
+
+  const dataEl = document.getElementById('servicios-data');
+  const servicios: ServicioData[] = JSON.parse(dataEl?.textContent ?? '[]');
+
+  const titleEl = document.getElementById('servicioModalTitle');
+  const innerEl = document.getElementById('servicioCarouselInner');
+  const captionEl = document.getElementById('servicioCaption');
+  const carouselEl = document.getElementById('servicioCarousel');
+
+  if (titleEl && innerEl && captionEl && carouselEl) {
+    const carousel = Carousel.getOrCreateInstance(carouselEl, { interval: false, ride: false });
+
+    const updateCaption = () => {
+      const active = innerEl.querySelector<HTMLImageElement>('.carousel-item.active img');
+      captionEl.textContent = active?.alt ?? '';
+    };
+
+    carouselEl.addEventListener('slid.bs.carousel', updateCaption);
+
+    document.querySelectorAll<HTMLButtonElement>('[data-servicio-index]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const servicio = servicios[Number(btn.dataset.servicioIndex)];
+        if (!servicio) return;
+
+        titleEl.textContent = servicio.titulo;
+        innerEl.replaceChildren(
+          ...servicio.fotos.map((foto, i) => {
+            const item = document.createElement('div');
+            item.className = `carousel-item${i === 0 ? ' active' : ''}`;
+            const img = document.createElement('img');
+            img.src = foto.src;
+            img.alt = foto.alt;
+            img.className = 'd-block w-100';
+            item.appendChild(img);
+            return item;
+          }),
+        );
+        carousel.to(0);
+        updateCaption();
+      });
+    });
+  }
+</script>

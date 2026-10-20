@@ -1,0 +1,154 @@
+---
+import { categorias } from '../config/galeria';
+
+const categoriasData = categorias.map((c) => ({
+  id: c.id,
+  nombre: c.nombre,
+  fotos: c.fotos.map((f) => ({ src: f.src, alt: f.alt })),
+}));
+---
+
+<section id="galeria" class="py-5">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">Galería</h2>
+      <p class="text-secondary">Hacé clic en una categoría para ver todas sus fotos.</p>
+    </div>
+
+    {
+      categorias.length === 0 ? (
+        <p class="text-center text-secondary">
+          Todavía no hay fotos. Agregalas en <code>src/assets/galeria/&lt;categoria&gt;/</code>.
+        </p>
+      ) : (
+        <div class="row g-4">
+          {categorias.map((c, i) => (
+            <div class="col-12 col-sm-6 col-lg-4">
+              <button
+                type="button"
+                class="categoria-card"
+                data-categoria-index={i}
+                data-bs-toggle="modal"
+                data-bs-target="#galeriaModal"
+                aria-label={`Ver fotos de ${c.nombre}`}
+              >
+                <img src={c.fotos[0].src} alt="" loading="lazy" />
+                <span class="categoria-overlay">
+                  <span class="categoria-nombre">{c.nombre}</span>
+                  <span class="categoria-count">
+                    <i class="bi bi-images me-1" />
+                    {c.fotos.length} {c.fotos.length === 1 ? 'foto' : 'fotos'}
+                  </span>
+                </span>
+              </button>
+            </div>
+          ))}
+        </div>
+      )
+    }
+  </div>
+
+  <!-- Modal con las fotos de la categoría elegida -->
+  <div class="modal fade" id="galeriaModal" tabindex="-1" aria-labelledby="galeriaModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content bg-dark text-white border-0">
+        <div class="modal-header border-0">
+          <h2 class="modal-title h5" id="galeriaModalTitle"></h2>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div id="galeriaCarousel" class="carousel slide" data-bs-interval="false" data-bs-ride="false">
+            <div class="carousel-inner" id="galeriaCarouselInner"></div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#galeriaCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#galeriaCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Siguiente</span>
+            </button>
+          </div>
+          <p class="text-center small text-white-50 my-2" id="galeriaCaption"></p>
+          <div class="thumb-strip px-3 pb-3" id="galeriaThumbs"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" id="galeria-data" is:inline set:html={JSON.stringify(categoriasData)} />
+</section>
+
+<script>
+  import { Carousel } from 'bootstrap';
+
+  interface Foto {
+    src: string;
+    alt: string;
+  }
+  interface CategoriaData {
+    id: string;
+    nombre: string;
+    fotos: Foto[];
+  }
+
+  const categorias: CategoriaData[] = JSON.parse(document.getElementById('galeria-data')?.textContent ?? '[]');
+
+  const titleEl = document.getElementById('galeriaModalTitle');
+  const innerEl = document.getElementById('galeriaCarouselInner');
+  const captionEl = document.getElementById('galeriaCaption');
+  const thumbsEl = document.getElementById('galeriaThumbs');
+  const carouselEl = document.getElementById('galeriaCarousel');
+
+  if (titleEl && innerEl && captionEl && thumbsEl && carouselEl) {
+    const carousel = Carousel.getOrCreateInstance(carouselEl, { interval: false, ride: false });
+
+    const sincronizar = () => {
+      const slides = Array.from(innerEl.children);
+      const indice = slides.findIndex((s) => s.classList.contains('active'));
+      thumbsEl.querySelectorAll('button').forEach((b, i) => b.classList.toggle('active', i === indice));
+      thumbsEl.querySelectorAll('button')[indice]?.scrollIntoView({ block: 'nearest', inline: 'center' });
+      captionEl.textContent = slides[indice]?.querySelector('img')?.alt ?? '';
+    };
+
+    carouselEl.addEventListener('slid.bs.carousel', sincronizar);
+
+    document.querySelectorAll<HTMLButtonElement>('[data-categoria-index]').forEach((card) => {
+      card.addEventListener('click', () => {
+        const categoria = categorias[Number(card.dataset.categoriaIndex)];
+        if (!categoria) return;
+
+        titleEl.textContent = categoria.nombre;
+
+        innerEl.replaceChildren(
+          ...categoria.fotos.map((foto, i) => {
+            const slide = document.createElement('div');
+            slide.className = `carousel-item${i === 0 ? ' active' : ''}`;
+            const img = document.createElement('img');
+            img.src = foto.src;
+            img.alt = foto.alt;
+            img.className = 'd-block w-100';
+            slide.appendChild(img);
+            return slide;
+          }),
+        );
+
+        thumbsEl.replaceChildren(
+          ...categoria.fotos.map((foto, i) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'thumb';
+            btn.setAttribute('aria-label', `Ver foto ${i + 1}`);
+            const img = document.createElement('img');
+            img.src = foto.src;
+            img.alt = '';
+            btn.appendChild(img);
+            btn.addEventListener('click', () => carousel.to(i));
+            return btn;
+          }),
+        );
+
+        sincronizar();
+      });
+    });
+  }
+</script>
